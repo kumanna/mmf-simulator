@@ -103,7 +103,3 @@ class Transmitter_Array(TR_Array):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-    t_array = Transmitter_Array()
-    t_array.add_element(0.0, 0.0, 5.0)
-    t_array.add_element(10.0, 10.0, 5.0)
-    t_array.plot_system()
