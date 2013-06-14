@@ -52,9 +52,15 @@ class TR_Array(object):
     def get_elements(self):
         return self.__device_list
 
-    def plot_system(self, fiber_diameter = 62.5, ec = 'black', fc = 'white'):
+    def plot_system(self, fiber_diameter = 62.5, fec = 'black', ffc = 'white', dec = 'black', dfc = 'blue'):
         """
-        Plot the array using a fiber with ``fiber_diameter`` as backdrop
+        Plot the array using a fiber with ``fiber_diameter`` as backdrop.
+
+        Parameters:
+        ``fec``: Fiber edge colour
+        ``ffc``: Fiber face colour
+        ``dec``: Device edge colour
+        ``dfc``: Device face colour
         """
         try:
             import matplotlib
@@ -63,10 +69,23 @@ class TR_Array(object):
             return
         import matplotlib.patches as patches
         import matplotlib.pyplot as pyplot
-        fiber_circle = patches.Circle(xy = (0.0, 0.0), radius = fiber_diameter / 2.0, ec = ec, fc = fc)
+
+        # First, create a patch for the fiber circle
+        fiber_circle = patches.Circle(xy = (0.0, 0.0), radius = fiber_diameter / 2.0, ec = fec, fc = ffc)
+
+        # Next, the device element patches
+        device_patches = []
+        for i in self.__device_list:
+            device_patches.append(patches.Circle(xy = (i.x, i.y), radius = i.diameter / 2.0, ec = dec, fc = dfc))
+
         fig = pyplot.figure(figsize=(8,8))
         ax = fig.add_subplot(111)
+
+        # Add the fiber circle first
         ax.add_patch(fiber_circle)
+
+        # Now, add the device elements
+        for i in device_patches: ax.add_patch(i)
         excess_margin = 1.05
         ax.set_xlim(-fiber_diameter / 2.0 * excess_margin, fiber_diameter / 2.0 * excess_margin)
         ax.set_ylim(-fiber_diameter / 2.0 * excess_margin, fiber_diameter / 2.0 * excess_margin)
