@@ -52,6 +52,26 @@ class TR_Array(object):
     def get_elements(self):
         return self.__device_list
 
+    def plot_system(self, fiber_diameter = 62.5, ec = 'black', fc = 'white'):
+        """
+        Plot the array using a fiber with ``fiber_diameter`` as backdrop
+        """
+        try:
+            import matplotlib
+        except ImportError:
+            print "Can't plot, because matplotlib seems missing"
+            return
+        import matplotlib.patches as patches
+        import matplotlib.pyplot as pyplot
+        fiber_circle = patches.Circle(xy = (0.0, 0.0), radius = fiber_diameter / 2.0, ec = ec, fc = fc)
+        fig = pyplot.figure(figsize=(8,8))
+        ax = fig.add_subplot(111)
+        ax.add_patch(fiber_circle)
+        excess_margin = 1.05
+        ax.set_xlim(-fiber_diameter / 2.0 * excess_margin, fiber_diameter / 2.0 * excess_margin)
+        ax.set_ylim(-fiber_diameter / 2.0 * excess_margin, fiber_diameter / 2.0 * excess_margin)
+        pyplot.show()
+
 class Transmitter_Array(TR_Array):
     """
     A transmitter array element. Most of the functionality is derived
@@ -63,3 +83,7 @@ class Transmitter_Array(TR_Array):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    t_array = Transmitter_Array()
+    t_array.add_element(0.0, 0.0, 5.0)
+    t_array.add_element(10.0, 10.0, 5.0)
+    t_array.plot_system()
