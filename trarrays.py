@@ -89,6 +89,7 @@ class TR_Array(object):
         excess_margin = 1.05
         ax.set_xlim(-fiber_diameter / 2.0 * excess_margin, fiber_diameter / 2.0 * excess_margin)
         ax.set_ylim(-fiber_diameter / 2.0 * excess_margin, fiber_diameter / 2.0 * excess_margin)
+        pyplot.grid(True)
         pyplot.show()
 
 class Transmitter_Array(TR_Array):
