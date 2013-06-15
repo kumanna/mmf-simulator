@@ -12,6 +12,26 @@ simulation phases. For example:
 
 import numpy
 
+def hermite_poly(n):
+    """
+    Returns the n-th degree physicists' Hermite polynomial.
+    >>> hermite_poly(0)
+    array([ 1.])
+    >>> hermite_poly(1)
+    array([ 0.,  2.])
+    >>> hermite_poly(2)
+    array([-2.,  0.,  4.])
+    >>> hermite_poly(3)
+    array([  0., -12.,   0.,   8.])
+    >>> hermite_poly(4)
+    array([ 12.,   0., -48.,   0.,  16.])
+    """
+    if n <= 0:
+        return numpy.array([1.0])
+    coeff_polynomial = [0.0] * n
+    coeff_polynomial.extend([1])
+    return numpy.polynomial.hermite.herm2poly(coeff_polynomial)
+
 def overlap(Er1, Er2):
     """
     This method performs an overlap of the two matrices ``Er1`` and
