@@ -266,6 +266,17 @@ class LargeCoreMMF(Fiber):
         return (lambda L, kappa : 1.0 / self.a * sqrt(pow(2 * numpy.pi / L * self.a * n0xy(kappa)[0], 2) - pow(b_tilde(L), 2)),
                 lambda L, kappa : 1.0 / self.a * sqrt(pow(2 * numpy.pi / L * self.a * n0xy(kappa)[1], 2) - pow(b_tilde(L), 2)))
 
+    def set_beta_values(self):
+        """
+        This function updates the beta values (that are all lambda
+        functions that take the wavelength and `kappa` as arguments).
+        """
+        admissible_modes = self.admissible_modes
+        M = len(admissible_modes)
+        for i in range(M):
+            p, q = admissible_modes[i][0], admissible_modes[i][1]
+            (self.betas[i], self.betas[M + i]) = self.calculate_beta(p, q)
+
     def populate_modes(self):
         # Calculate the admissible mode numbers
         a = self.a
@@ -275,10 +286,7 @@ class LargeCoreMMF(Fiber):
         admissible_modes = self.admissible_modes
         M = len(admissible_modes)
         self.betas = [None] * (2*M)
-
-        for i in range(M):
-            p, q = admissible_modes[i][0], admissible_modes[i][1]
-            (self.betas[i], self.betas[M + i]) = self.calculate_beta(p, q)
+        self.set_beta_values()
 
     def connect_transmitter(self):
         self.transmitter_connected = True
