@@ -139,7 +139,7 @@ class Fiber(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, length = 1000.0, step_length = 0.1):
+    def __init__(self, length = 1000.0, step_length = 0.1, wavelength = 1.55e-6):
         """
         Initialize the fiber with length and step size.
         
@@ -164,6 +164,46 @@ class Fiber(object):
         Connect a receiver detector array
         """
         raise NotImplemented
+
+    @abc.abstractmethod
+    def populate_modes(self):
+        raise NotImplemented
+
+class LargeCoreMMF(Fiber):
+    """
+    This class represents a conventional (large-core) multimode
+    fiber. This uses the model described in *Principal Modes in
+    Graded-Index Multimode Fiber in Presence of Spatial- and
+    Polarization-Mode Coupling* by Shemirani et al., IEEE/OSA Journal
+    of Lightwave Technology, May 2009, and is slightly altered and
+    tailored for large-core fibers whose diameters are larger than
+    about 30 microns.
+    """
+
+    fiber_attributes = ["NA", "wavelength", "a", "k0", "n0", "Csk0",
+        "delta", "n_core", "DELTA", "sqrt", "w", "EXTENTS", "STEP"]
+
+    def __init__(self, length = 1000.0, step_length = 0.1, wavelength = 1.55e-6, **kwargs):
+        super(Fiber, self).__init__(length, step_length, wavelength)
+
+        # Default values
+        self.NA = 0.19
+        self.wavelength = 1.55e-6;
+        self.a = 31.25e-6/2;
+        self.k0 = 2 * numpy.pi / wavelength
+        self.n0 = 1.444;
+        self.Csk0 = 0.0878 * pow(n0, 3)
+        self.delta = 8000;
+        self.n_core = n0;
+        self.DELTA = 0.5 * pow((NA / n0), 2);
+        self.sqrt = numpy.sqrt
+        self.w = sqrt(sqrt(2) * a / (k0 * n0 * sqrt(DELTA)));
+        self.EXTENTS = 30e-6
+        self.STEP = 0.5e-6
+
+
+    def populate_modes(self):
+        pass
 
 if __name__ == "__main__":
     import doctest
