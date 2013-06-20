@@ -178,32 +178,83 @@ class LargeCoreMMF(Fiber):
     of Lightwave Technology, May 2009, and is slightly altered and
     tailored for large-core fibers whose diameters are larger than
     about 30 microns.
+
+    The valid parameters and their default values (in parentheses) are:
+    `NA`: numerical aperture (0.19)
+    `wavelength`: nominal operating wavelength (1.55e-6)
+    `a`: fiber radius (25e-6)
+    `n0`: nominal refractive index (1.444)
+    `Csk0`: strain optical coefficient (0.0878 * n0^3)
+    `delta`: Refractive index gradient parameter (8000)
+    `DELTA`: Index difference between core and cladding (0.5 * (NA / n0)^2)
+    `w`: Mode field diameter (sqrt(sqrt(2) * a / (k0 * n0 * sqrt(DELTA))))
+    `EXTENTS`: Grid extents (30e-6)
+    `STEP`: Grid step  (0.5e-6)
+
+    Example:
+    >>> m = LargeCoreMMF()
+    >>> len(m.get_admissible_modes())
+    55
     """
 
-    fiber_attributes = ["NA", "wavelength", "a", "k0", "n0", "Csk0",
-        "delta", "n_core", "DELTA", "sqrt", "w", "EXTENTS", "STEP"]
+    fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
+        "delta", "DELTA", "sqrt", "w", "EXTENTS", "STEP"]
+
+    fiber_internals = ["admissible_modes"]
 
     def __init__(self, length = 1000.0, step_length = 0.1, wavelength = 1.55e-6, **kwargs):
-        super(Fiber, self).__init__(length, step_length, wavelength)
+        super(LargeCoreMMF, self).__init__(length, step_length, wavelength)
+
+        sqrt = numpy.sqrt
 
         # Default values
         self.NA = 0.19
         self.wavelength = 1.55e-6;
-        self.a = 31.25e-6/2;
-        self.k0 = 2 * numpy.pi / wavelength
+        self.a = 25e-6;
         self.n0 = 1.444;
-        self.Csk0 = 0.0878 * pow(n0, 3)
+        self.Csk0 = 0.0878 * pow(self.n0, 3)
         self.delta = 8000;
-        self.n_core = n0;
-        self.DELTA = 0.5 * pow((NA / n0), 2);
-        self.sqrt = numpy.sqrt
-        self.w = sqrt(sqrt(2) * a / (k0 * n0 * sqrt(DELTA)));
+        self.n_core = self.n0;
+        self.DELTA = 0.5 * pow((self.NA / self.n0), 2);
+
+        self.k0 = 2 * numpy.pi / wavelength
+        self.w = sqrt(sqrt(2) * self.a / (self.k0 * self.n0 * sqrt(self.DELTA)));
+
         self.EXTENTS = 30e-6
         self.STEP = 0.5e-6
 
+        # Populate values based on kwargs
+        for i in self.fiber_attributes:
+            if i in kwargs.keys():
+                exec("self.%s = %f" % (i, float(kwargs[i])))
+
+            # Method functions to return paramters
+            exec("f = lambda self : self.%s" % i)
+            exec("f.__doc__ = \"Returns %s for this fiber\"" % (i))
+            exec("self.get_%s = types.MethodType(f, self)" % i)
+
+        for i in self.fiber_internals:
+            exec("self.%s = None" % (i))
+
+            # Method functions to return paramters
+            exec("f = lambda self : self.%s" % i)
+            exec("f.__doc__ = \"Returns %s for this fiber\"" % (i))
+            exec("self.get_%s = types.MethodType(f, self)" % i)
+
+        self.populate_modes()
 
     def populate_modes(self):
-        pass
+        # Calculate the admissible mode numbers
+        a = self.a
+        w = self.w
+        MAX = int(numpy.floor((a / w) * (a / w)))
+        self.admissible_modes = numpy.concatenate([[(i, j) for i in range(j + 1)] for j in range(MAX + 1)])
+
+    def connect_transmitter(self):
+        self.transmitter_connected = True
+
+    def connect_receiver(self):
+        self.receiver_connected = True
 
 if __name__ == "__main__":
     import doctest
