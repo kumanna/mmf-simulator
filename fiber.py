@@ -131,6 +131,40 @@ class GHModes(ModeFamily):
         pyplot.grid(True)
         pyplot.show()
 
+class Fiber(object):
+    """
+    This object represents an abstract notion of a fiber. It is intended
+    to be subclassed to implement a fiber model, based on various
+    characteristics.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, length = 1000.0, step_length = 0.1):
+        """
+        Initialize the fiber with length and step size.
+        
+        """
+        self.length = length
+        self.step_length = step_length
+        self.current_mode_vector = numpy.matrix([])
+
+        self.transmitter_connected = False
+        self.receiver_connected = False
+
+    @abc.abstractmethod
+    def connect_transmitter(self):
+        """
+        Connect a transmit laser array
+        """
+        raise NotImplemented
+
+    @abc.abstractmethod
+    def connect_receiver(self):
+        """
+        Connect a receiver detector array
+        """
+        raise NotImplemented
+
 if __name__ == "__main__":
     import doctest
     import utils
