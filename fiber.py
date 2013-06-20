@@ -6,6 +6,7 @@ from numpy import sqrt
 import abc
 import types
 from math import factorial
+from scipy.special import gamma
 
 class ModeFamily(object):
     """
@@ -187,6 +188,7 @@ class LargeCoreMMF(Fiber):
     `Csk0`: strain optical coefficient (0.0878 * n0^3)
     `delta`: Refractive index gradient parameter (8000)
     `sigma_kappa`: Curvature variance (1.0)
+    `sigma_theta`: Angle variance (sqrt(0.36))
     `DELTA`: Index difference between core and cladding (0.5 * (NA / n0)^2)
     `w`: Mode field diameter (sqrt(sqrt(2) * a / (k0 * n0 * sqrt(DELTA))))
     `EXTENTS`: Grid extents (30e-6)
@@ -199,7 +201,7 @@ class LargeCoreMMF(Fiber):
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
-        "delta", "DELTA", "sqrt", "w", "EXTENTS", "STEP", "sigma_kappa"]
+        "delta", "DELTA", "sqrt", "w", "EXTENTS", "STEP", "sigma_kappa", "sigma_theta"]
 
     fiber_internals = ["admissible_modes", "betas"]
 
@@ -216,6 +218,7 @@ class LargeCoreMMF(Fiber):
         self.n_core = self.n0;
         self.DELTA = 0.5 * pow((self.NA / self.n0), 2);
         self.sigma_kappa = 1.0
+        self.sigma_kappa = sqrt(0.36)
 
         self.k0 = 2 * numpy.pi / wavelength
         self.w = sqrt(sqrt(2) * self.a / (self.k0 * self.n0 * sqrt(self.DELTA)));
@@ -243,6 +246,20 @@ class LargeCoreMMF(Fiber):
 
         self.populate_modes()
 
+    def calculate_beta(self, p, q):
+        """
+        Calculates the beta values as a function of the wavelength.
+        """
+        # Refractive index components
+        n0x = lambda kappa : (self.delta * self.Csk0 * pow(self.a * kappa, 2) / 2.0 + 2.0 * self.n0) / 2.0
+        n0xy = lambda kappa : (n0x(kappa), 2 * self.n0 - n0x(kappa));
+
+        alpha = 2.0
+        V = lambda L: 2 * numpy.pi / L * self.a * self.n0 * sqrt(2.0 * self.DELTA)
+        b_tilde = lambda L : pow(gamma(1.0 / alpha + 0.5) * (alpha + 2.0) * (p + q + 1) * sqrt(numpy.pi) * pow(V(L), 2.0 / alpha), alpha / (2.0 + alpha))
+        return (lambda L, kappa : 1.0 / self.a * sqrt(pow(2 * numpy.pi / L * self.a * n0xy(kappa)[0], 2) - pow(b_tilde(L), 2)),
+                lambda L, kappa : 1.0 / self.a * sqrt(pow(2 * numpy.pi / L * self.a * n0xy(kappa)[1], 2) - pow(b_tilde(L), 2)))
+
     def populate_modes(self):
         # Calculate the admissible mode numbers
         a = self.a
@@ -252,18 +269,14 @@ class LargeCoreMMF(Fiber):
         admissible_modes = self.admissible_modes
         M = len(admissible_modes)
         self.betas = [None] * (2*M)
+
+        # Random fiber realization
+        randn = numpy.random.randn
+
         for i in range(M):
             p, q = admissible_modes[i][0], admissible_modes[i][1]
-            # Refractive index components
-            n0x = (self.delta * self.Csk0 * pow(self.a * self.sigma_kappa, 2) / 2.0 + 2.0 * self.n0) / 2.0;
-            n0y = 2 * self.n0 - n0x;
-
-            k0 = self.k0
-            n0 = self.n0
-            DELTA = self.DELTA
-            a = self.a
-            self.betas[i] = self.betas[M + i] = sqrt(n0x*n0x * k0*k0 - k0 / a * n0 * sqrt(2 * DELTA) * ((2 * p + 1) + (2 * q + 1)));
-
+            (self.betas[i], self.betas[M + i]) = self.calculate_beta(p, q)
+            print self.betas[i](1.55e-6, 1.0)
     def connect_transmitter(self):
         self.transmitter_connected = True
 
