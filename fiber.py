@@ -270,13 +270,10 @@ class LargeCoreMMF(Fiber):
         M = len(admissible_modes)
         self.betas = [None] * (2*M)
 
-        # Random fiber realization
-        randn = numpy.random.randn
-
         for i in range(M):
             p, q = admissible_modes[i][0], admissible_modes[i][1]
             (self.betas[i], self.betas[M + i]) = self.calculate_beta(p, q)
-            print self.betas[i](1.55e-6, 1.0)
+
     def connect_transmitter(self):
         self.transmitter_connected = True
 
