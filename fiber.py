@@ -2,6 +2,7 @@
 This module defines and implements the models for different fiber types.
 """
 import numpy
+from numpy import sqrt
 import abc
 import types
 from math import factorial
@@ -94,7 +95,6 @@ class GHModes(ModeFamily):
         XX = self.XX
         YY = self.YY
         theta = self.theta
-        sqrt = numpy.sqrt
         pi = numpy.pi
         exp = numpy.exp
         w = self.w
@@ -186,6 +186,7 @@ class LargeCoreMMF(Fiber):
     `n0`: nominal refractive index (1.444)
     `Csk0`: strain optical coefficient (0.0878 * n0^3)
     `delta`: Refractive index gradient parameter (8000)
+    `sigma_kappa`: Curvature variance (1.0)
     `DELTA`: Index difference between core and cladding (0.5 * (NA / n0)^2)
     `w`: Mode field diameter (sqrt(sqrt(2) * a / (k0 * n0 * sqrt(DELTA))))
     `EXTENTS`: Grid extents (30e-6)
@@ -198,14 +199,12 @@ class LargeCoreMMF(Fiber):
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
-        "delta", "DELTA", "sqrt", "w", "EXTENTS", "STEP"]
+        "delta", "DELTA", "sqrt", "w", "EXTENTS", "STEP", "sigma_kappa"]
 
-    fiber_internals = ["admissible_modes"]
+    fiber_internals = ["admissible_modes", "betas"]
 
     def __init__(self, length = 1000.0, step_length = 0.1, wavelength = 1.55e-6, **kwargs):
         super(LargeCoreMMF, self).__init__(length, step_length, wavelength)
-
-        sqrt = numpy.sqrt
 
         # Default values
         self.NA = 0.19
@@ -216,6 +215,7 @@ class LargeCoreMMF(Fiber):
         self.delta = 8000;
         self.n_core = self.n0;
         self.DELTA = 0.5 * pow((self.NA / self.n0), 2);
+        self.sigma_kappa = 1.0
 
         self.k0 = 2 * numpy.pi / wavelength
         self.w = sqrt(sqrt(2) * self.a / (self.k0 * self.n0 * sqrt(self.DELTA)));
@@ -249,6 +249,20 @@ class LargeCoreMMF(Fiber):
         w = self.w
         MAX = int(numpy.floor((a / w) * (a / w)))
         self.admissible_modes = numpy.concatenate([[(i, j) for i in range(j + 1)] for j in range(MAX + 1)])
+        admissible_modes = self.admissible_modes
+        M = len(admissible_modes)
+        self.betas = [None] * (2*M)
+        for i in range(M):
+            p, q = admissible_modes[i][0], admissible_modes[i][1]
+            # Refractive index components
+            n0x = (self.delta * self.Csk0 * pow(self.a * self.sigma_kappa, 2) / 2.0 + 2.0 * self.n0) / 2.0;
+            n0y = 2 * self.n0 - n0x;
+
+            k0 = self.k0
+            n0 = self.n0
+            DELTA = self.DELTA
+            a = self.a
+            self.betas[i] = self.betas[M + i] = sqrt(n0x*n0x * k0*k0 - k0 / a * n0 * sqrt(2 * DELTA) * ((2 * p + 1) + (2 * q + 1)));
 
     def connect_transmitter(self):
         self.transmitter_connected = True
