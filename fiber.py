@@ -194,6 +194,12 @@ class LargeCoreMMF(Fiber):
     `EXTENTS`: Grid extents (30e-6)
     `STEP`: Grid step  (0.5e-6)
 
+    The `sigma_kappa` and `sigma_theta` values provide the statistics
+    to facilitate the simulation of several random instances of the
+    fiber, since the propagation properties of the modes fiber are
+    implemented as lambda functions that take these parameters as
+    arguments. Similarly, the wavelength of the fiber is also a variable.
+
     Example:
     >>> m = LargeCoreMMF()
     >>> len(m.get_admissible_modes())
