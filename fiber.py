@@ -224,6 +224,7 @@ class LargeCoreMMF(Fiber):
         self.n_core = self.n0;
         self.DELTA = 0.5 * pow((self.NA / self.n0), 2);
         self.sigma_kappa = 1.0
+        self.sigma_theta = 1.0
         self.sigma_kappa = sqrt(0.36)
 
         self.k0 = 2 * numpy.pi / wavelength
@@ -277,11 +278,44 @@ class LargeCoreMMF(Fiber):
             p, q = admissible_modes[i][0], admissible_modes[i][1]
             (self.betas[i], self.betas[M + i]) = self.calculate_beta(p, q)
 
+    def coupling_coefficients(self, kappa, L, MAX):
+        admissible_modes = self.admissible_modes.tolist()
+        M = len(admissible_modes)
+        C = numpy.zeros((M, M))
+        m_for_mode = self.m_for_mode
+        for m in range(M):
+            for n in range(M):
+                p, q = admissible_modes[m]
+                pp, qp = admissible_modes[n]
+
+                if ((pp + 1 == p) or (pp - 1 == p)) and (q == qp):
+                    index_1, index_2 = admissible_modes.index([p, q]), admissible_modes.index([pp, qp])
+                    C[index_1, index_2] = 2 * numpy.pi / L * self.n0 * kappa * self.w / 2.0 * \
+                    (float(p == (pp + 1)) * sqrt(p) + (p == (pp - 1)) * sqrt(pp))
+        return C
+
+    def calculate_matrix(self, L):
+        """
+        Evaluates the total mode transformation matrix for a particular wavelength.
+        """
+        n_sections = int(self.length / self.step_length)
+        M = len(self.admissible_modes)
+        for section in range(n_sections):
+            # Generate curvature and angle
+            kappa = numpy.abs(self.sigma_kappa * numpy.random.randn())
+            theta = numpy.abs(self.sigma_theta * numpy.random.randn())
+
+            betas = numpy.array([b(L, kappa) for b in self.betas])
+            Gamma_x = 1j * numpy.diag(betas[:M])
+            Gamma_y = 1j * numpy.diag(betas[M:])
+            C = self.coupling_coefficients(L, kappa, self.MAX)
+
     def populate_modes(self):
         # Calculate the admissible mode numbers
         a = self.a
         w = self.w
         MAX = int(numpy.floor((a / w) * (a / w)))
+        self.MAX = MAX
         self.admissible_modes = numpy.concatenate([[(i, j) for i in range(j + 1)] for j in range(MAX + 1)])
         admissible_modes = self.admissible_modes
         M = len(admissible_modes)
