@@ -7,6 +7,7 @@ import abc
 import types
 from math import factorial
 from scipy.special import gamma
+from scipy.linalg import expm
 
 class ModeFamily(object):
     """
@@ -282,7 +283,6 @@ class LargeCoreMMF(Fiber):
         admissible_modes = self.admissible_modes.tolist()
         M = len(admissible_modes)
         C = numpy.zeros((M, M))
-        m_for_mode = self.m_for_mode
         for m in range(M):
             for n in range(M):
                 p, q = admissible_modes[m]
@@ -294,9 +294,21 @@ class LargeCoreMMF(Fiber):
                     (float(p == (pp + 1)) * sqrt(p) + (p == (pp - 1)) * sqrt(pp))
         return C
 
+    def uiprop(self, gamma_x, gamma_y, C, delta_per_section, M):
+        uiprop_matrix = (1 + 0.0j) * numpy.zeros((2 * M, 2 * M))
+        Mx = 1.0j * (-gamma_x + C * delta_per_section)
+        uiprop_matrix[:M,:M] = expm(Mx)
+        My = 1.0j * (-gamma_y + C * delta_per_section)
+        uiprop_matrix[M:,M:] = expm(My)
+        return uiprop_matrix
+
     def calculate_matrix(self, L):
         """
         Evaluates the total mode transformation matrix for a particular wavelength.
+
+        Example:
+        >>> m = LargeCoreMMF()
+        >>> m.calculate_matrix(1.55e-6)
         """
         n_sections = int(self.length / self.step_length)
         M = len(self.admissible_modes)
@@ -309,6 +321,7 @@ class LargeCoreMMF(Fiber):
             Gamma_x = 1j * numpy.diag(betas[:M])
             Gamma_y = 1j * numpy.diag(betas[M:])
             C = self.coupling_coefficients(L, kappa, self.MAX)
+            uiprop = self.uiprop(Gamma_x, Gamma_y, C, float(L) / float(n_sections), M)
 
     def populate_modes(self):
         # Calculate the admissible mode numbers
