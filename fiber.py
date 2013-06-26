@@ -104,7 +104,9 @@ class GHModes(ModeFamily):
         sin = numpy.sin
 
         # Radial distances, with offsets
-        R2 = numpy.square(XX - self.offset_x) + numpy.square(YY - self.offset_y)
+        XX = XX - self.offset_x
+        YY = YY - self.offset_y
+        R2 = numpy.square(XX) + numpy.square(YY)
 
         # Split the multiplication into steps
         P1 = sqrt(2 / pi) / w / sqrt(pow(2.0, p + q) * float(factorial(p)) * float(factorial(q)))
