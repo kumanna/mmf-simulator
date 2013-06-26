@@ -2,7 +2,9 @@
 """
 This class defines and implements the transmit and receive arrays.
 
->>> t_array = Transmitter_Array()
+>>> EXTENTS = 30e-6 # Larger than the diameter
+>>> STEP = 0.5e-6 # fixed for now
+>>> t_array = Transmitter_Array(EXTENTS, STEP)
 >>> t_array.add_element(0.0, 0.0, 5.0)
 >>> t_array.add_element(10.0, 10.0, 5.0)
 >>> for i in t_array.get_elements():
@@ -11,18 +13,21 @@ Array element at (0.0, 0.0) with diameter 5.0.
 Array element at (10.0, 10.0) with diameter 5.0.
 """
 import abc
+import fiber
+import numpy
 
 class LDArrayElement:
     """
     Class that represents each element of the laser/detector array
     """
-    def __init__(self, x = 0.0, y = 0.0, diameter = 5.0):
+    def __init__(self, x = 0.0, y = 0.0, diameter = 5.0, modes = None):
         """
         Initialize a laser/detector element with a diameter of ``diameter`` and center (``x``, ``y``).
         """
         self.x = x
         self.y = y
         self.diameter = diameter
+        self.modes = modes
 
 class TR_Array(object):
     """
@@ -33,6 +38,7 @@ class TR_Array(object):
 
     def __init__(self):
         self.__device_list = []
+        self.modes = None
 
     @abc.abstractmethod
     def overlap_matrix(self):
@@ -47,7 +53,7 @@ class TR_Array(object):
         Add a circular laser/detector element, with ``diameter''
         specified in microns.
         """
-        self.__device_list.append(LDArrayElement(x, y, diameter))
+        self.__device_list.append(LDArrayElement(x, y, diameter, self.modes))
 
     def get_elements(self):
         return self.__device_list
@@ -97,6 +103,17 @@ class Transmitter_Array(TR_Array):
     A transmitter array element. Most of the functionality is derived
     from the ``TR_Array'' class.
     """
+
+    def __init__(self, extents, step):
+        super(Transmitter_Array, self).__init__()
+        x = numpy.arange(-extents, extents, step)
+        y = numpy.arange(-extents, extents, step)
+        [self.XX, self.YY] = numpy.meshgrid(x, y)
+
+    def add_element(self, x, y, diameter = 5.0):
+        self.modes = fiber.GHModes(diameter, self.XX, self.YY)
+        super(Transmitter_Array, self).add_element(x, y, diameter)
+
     def overlap_matrix(self):
         pass
 
