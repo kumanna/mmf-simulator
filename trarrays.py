@@ -5,12 +5,12 @@ This class defines and implements the transmit and receive arrays.
 >>> EXTENTS = 30e-6 # Larger than the diameter
 >>> STEP = 0.5e-6 # fixed for now
 >>> t_array = Transmitter_Array(EXTENTS, STEP)
->>> t_array.add_element(0.0, 0.0, 5.0)
->>> t_array.add_element(10.0, 10.0, 5.0)
+>>> t_array.add_element(0.0, 0.0, 5.0e-6)
+>>> t_array.add_element(10.0e-6, 10.0e-6, 5.0e-6)
 >>> for i in t_array.get_elements():
 ...     print "Array element at (" + str(i.x) + ", " + str(i.y) + ") with diameter " + str(i.diameter) + "."
-Array element at (0.0, 0.0) with diameter 5.0.
-Array element at (10.0, 10.0) with diameter 5.0.
+Array element at (0.0, 0.0) with diameter 5e-06.
+Array element at (1e-05, 1e-05) with diameter 5e-06.
 """
 import abc
 import fiber
@@ -20,7 +20,7 @@ class LDArrayElement:
     """
     Class that represents each element of the laser/detector array
     """
-    def __init__(self, x = 0.0, y = 0.0, diameter = 5.0, modes = None):
+    def __init__(self, x = 0.0, y = 0.0, diameter = 5.0e-6, modes = None):
         """
         Initialize a laser/detector element with a diameter of ``diameter`` and center (``x``, ``y``).
         """
@@ -48,7 +48,7 @@ class TR_Array(object):
         """
         raise NotImplemented
 
-    def add_element(self, x, y, diameter = 5.0):
+    def add_element(self, x, y, diameter = 5.0e-6):
         """
         Add a circular laser/detector element, with ``diameter''
         specified in microns.
@@ -110,8 +110,8 @@ class Transmitter_Array(TR_Array):
         y = numpy.arange(-extents, extents, step)
         [self.XX, self.YY] = numpy.meshgrid(x, y)
 
-    def add_element(self, x, y, diameter = 5.0):
-        self.modes = fiber.GHModes(diameter, self.XX, self.YY)
+    def add_element(self, x, y, diameter = 5.0e-6):
+        self.modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
         super(Transmitter_Array, self).add_element(x, y, diameter)
 
     def overlap_matrix(self):
