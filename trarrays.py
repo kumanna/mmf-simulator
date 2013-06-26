@@ -41,7 +41,7 @@ class TR_Array(object):
         self.modes = None
 
     @abc.abstractmethod
-    def overlap_matrix(self):
+    def overlap_matrix(self, mode_pattern):
         """
         This method returns the overlap matrix for calculating the
         MIMO channel matrix of a complete system.
@@ -114,7 +114,7 @@ class Transmitter_Array(TR_Array):
         self.modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
         super(Transmitter_Array, self).add_element(x, y, diameter)
 
-    def overlap_matrix(self):
+    def overlap_matrix(self, mode_pattern):
         pass
 
 if __name__ == "__main__":
