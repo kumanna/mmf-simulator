@@ -307,7 +307,7 @@ class LargeCoreMMF(Fiber):
         Evaluates the total mode transformation matrix for a particular wavelength.
 
         Example:
-        >>> m = LargeCoreMMF()
+        >>> m = LargeCoreMMF(length=1.0)
         >>> m.calculate_matrix(1.55e-6)
         """
         n_sections = int(self.length / self.step_length)
@@ -324,6 +324,10 @@ class LargeCoreMMF(Fiber):
             uiprop = self.uiprop(Gamma_x, Gamma_y, C, float(L) / float(n_sections), M)
 
     def populate_modes(self):
+        """
+        Populates the spatial and signaling properties of the fiber
+        modes.
+        """
         # Calculate the admissible mode numbers
         a = self.a
         w = self.w
@@ -334,6 +338,14 @@ class LargeCoreMMF(Fiber):
         M = len(admissible_modes)
         self.betas = [None] * (2*M)
         self.set_beta_values()
+
+        # Now define the spatial properties
+        EXTENTS = self.a * 2.4 # Larger than the diameter
+        STEP = 0.5e-6 # fixed for now
+        x = numpy.arange(-EXTENTS, EXTENTS, STEP)
+        y = numpy.arange(-EXTENTS, EXTENTS, STEP)
+        [XX, YY] = numpy.meshgrid(x, y)
+        self.modes = GHModes(w, XX, YY)
 
     def connect_transmitter(self):
         self.transmitter_connected = True
