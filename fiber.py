@@ -186,6 +186,7 @@ class LargeCoreMMF(Fiber):
     The valid parameters and their default values (in parentheses) are:
     `NA`: numerical aperture (0.19)
     `wavelength`: nominal operating wavelength (1.55e-6)
+    `step_length`: step length of each fiber section (0.1)
     `a`: fiber radius (25e-6)
     `n0`: nominal refractive index (1.444)
     `Csk0`: strain optical coefficient (0.0878 * n0^3)
@@ -204,9 +205,17 @@ class LargeCoreMMF(Fiber):
     arguments. Similarly, the wavelength of the fiber is also a variable.
 
     Example:
-    >>> m = LargeCoreMMF()
+    >>> EXTENTS = 30e-6 # Larger than the diameter
+    >>> STEP = 0.5e-6 # fixed for now
+    >>> m = LargeCoreMMF(step_length = 1000.0, a = 25e-6, EXTENTS=EXTENTS, STEP=STEP)
     >>> len(m.get_admissible_modes())
     55
+    >>> from trarrays import Transmitter_Array
+    >>> t_array = Transmitter_Array(EXTENTS, STEP)
+    >>> w = m.w
+    >>> t_array.add_element(0.0, 0.0, w)
+    >>> t_array.add_element(5.0e-6, 5.0e-6, w)
+    >>> m.connect_transmitter(t_array)
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
@@ -239,7 +248,7 @@ class LargeCoreMMF(Fiber):
         # Populate values based on kwargs
         for i in self.fiber_attributes:
             if i in kwargs.keys():
-                exec("self.%s = %f" % (i, float(kwargs[i])))
+                exec("self.%s = %.20f" % (i, float(kwargs[i])))
 
             # Method functions to return paramters
             exec("f = lambda self : self.%s" % i)
@@ -342,14 +351,15 @@ class LargeCoreMMF(Fiber):
         self.set_beta_values()
 
         # Now define the spatial properties
-        EXTENTS = self.a * 2.4 # Larger than the diameter
-        STEP = 0.5e-6 # fixed for now
+        EXTENTS = self.EXTENTS
+        STEP = self.STEP
         x = numpy.arange(-EXTENTS, EXTENTS, STEP)
         y = numpy.arange(-EXTENTS, EXTENTS, STEP)
         [XX, YY] = numpy.meshgrid(x, y)
         self.modes = GHModes(w, XX, YY)
 
-    def connect_transmitter(self):
+    def connect_transmitter(self, t_array):
+        self.state = t_array.overlap_matrix(self)
         self.transmitter_connected = True
 
     def connect_receiver(self):

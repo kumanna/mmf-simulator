@@ -5,7 +5,7 @@ This class defines and implements the transmit and receive arrays.
 >>> EXTENTS = 30e-6 # Larger than the diameter
 >>> STEP = 0.5e-6 # fixed for now
 >>> t_array = Transmitter_Array(EXTENTS, STEP)
->>> t_array.add_element(0.0, 0.0, 5.0e-6)
+>>> t_array.add_element(0.0, 0.0, 50.0e-6)
 >>> t_array.add_element(10.0e-6, 10.0e-6, 5.0e-6)
 >>> for i in t_array.get_elements():
 ...     print "Array element at (" + str(i.x) + ", " + str(i.y) + ") with diameter " + str(i.diameter) + "."
@@ -15,6 +15,7 @@ Array element at (1e-05, 1e-05) with diameter 5e-06.
 import abc
 import fiber
 import numpy
+import utils
 
 class LDArrayElement:
     """
@@ -29,6 +30,9 @@ class LDArrayElement:
         self.diameter = diameter
         self.modes = modes
 
+    def get_mode_pattern(self, p = 0, q = 0):
+        return self.modes.get_mode_pattern(p, q)
+
 class TR_Array(object):
     """
     Base class that defines the characteristic of laser and detector arrays
@@ -37,7 +41,7 @@ class TR_Array(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
-        self.__device_list = []
+        self._device_list = []
         self.modes = None
 
     @abc.abstractmethod
@@ -48,17 +52,17 @@ class TR_Array(object):
         """
         raise NotImplemented
 
-    def add_element(self, x, y, diameter = 5.0e-6):
+    def add_element(self, x, y, diameter = 5.0e-6, modes = None):
         """
         Add a circular laser/detector element, with ``diameter''
         specified in microns.
         """
-        self.__device_list.append(LDArrayElement(x, y, diameter, self.modes))
+        self._device_list.append(LDArrayElement(x, y, diameter, modes))
 
     def get_elements(self):
-        return self.__device_list
+        return self._device_list
 
-    def plot_system(self, fiber_diameter = 62.5, fec = 'black', ffc = 'white', dec = 'black', dfc = 'blue'):
+    def plot_system(self, fiber_diameter = 62.5e-6, fec = 'black', ffc = 'white', dec = 'black', dfc = 'blue'):
         """
         Plot the array using a fiber with ``fiber_diameter`` as backdrop.
 
@@ -81,7 +85,7 @@ class TR_Array(object):
 
         # Next, the device element patches
         device_patches = []
-        for i in self.__device_list:
+        for i in self._device_list:
             device_patches.append(patches.Circle(xy = (i.x, i.y), radius = i.diameter / 2.0, ec = dec, fc = dfc))
 
         fig = pyplot.figure(figsize=(8,8))
@@ -111,11 +115,24 @@ class Transmitter_Array(TR_Array):
         [self.XX, self.YY] = numpy.meshgrid(x, y)
 
     def add_element(self, x, y, diameter = 5.0e-6):
-        self.modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
-        super(Transmitter_Array, self).add_element(x, y, diameter)
+        modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
+        super(Transmitter_Array, self).add_element(x, y, diameter, modes)
+        self.plot_system()
 
-    def overlap_matrix(self, mode_pattern):
-        pass
+    def overlap_matrix(self, fiber_instance):
+        element_arrays = []
+        for device in self._device_list:
+            Er1 = device.modes.get_mode_pattern(0, 0)
+            fiber_modes = fiber_instance.get_admissible_modes()
+            M = len(fiber_modes)
+            mode_vector = numpy.zeros(2 * M)
+            for i in range(M):
+                current_mode = fiber_modes[i]
+                Er2 = fiber_instance.modes.get_mode_pattern(current_mode[0], current_mode[1])
+                mode_vector[i] = mode_vector[M + i] = utils.overlap(Er1, Er2)
+            element_arrays.append(mode_vector)
+        element_arrays = numpy.array(element_arrays)
+        return element_arrays
 
 if __name__ == "__main__":
     import doctest
