@@ -217,6 +217,11 @@ class LargeCoreMMF(Fiber):
     >>> t_array.add_element(10.0e-6, 10.0e-6, w)
     >>> m.connect_transmitter(t_array)
     >>> t_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
+    >>> import numpy
+    >>> print "%.2f" % numpy.dot(m.state[0], m.state[0])
+    2.00
+    >>> print "%.2f" % numpy.dot(m.state[1], m.state[1])
+    1.24
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
