@@ -131,7 +131,7 @@ class GHModes(ModeFamily):
 
         pattern = self.get_mode_pattern(p, q)
         pattern = pattern / numpy.max(pattern)
-        pyplot.imshow(numpy.abs(pattern), interpolation = 'bilinear', cmap = matplotlib.cm.spectral)
+        pyplot.imshow(numpy.abs(pattern.T), interpolation = 'bilinear', cmap = matplotlib.cm.spectral, origin='lower')
         pyplot.grid(True)
         pyplot.show()
 
@@ -214,8 +214,9 @@ class LargeCoreMMF(Fiber):
     >>> t_array = Transmitter_Array(EXTENTS, STEP)
     >>> w = m.w
     >>> t_array.add_element(0.0, 0.0, w)
-    >>> t_array.add_element(5.0e-6, 5.0e-6, w)
+    >>> t_array.add_element(10.0e-6, 10.0e-6, w)
     >>> m.connect_transmitter(t_array)
+    >>> t_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
