@@ -210,7 +210,7 @@ class LargeCoreMMF(Fiber):
     >>> m = LargeCoreMMF(step_length = 1000.0, a = 25e-6, EXTENTS=EXTENTS, STEP=STEP)
     >>> len(m.get_admissible_modes())
     55
-    >>> from trarrays import Transmitter_Array
+    >>> from trarrays import Transmitter_Array, Receiver_Array
     >>> t_array = Transmitter_Array(EXTENTS, STEP)
     >>> w = m.w
     >>> t_array.add_element(0.0, 0.0, w)
@@ -218,10 +218,19 @@ class LargeCoreMMF(Fiber):
     >>> m.connect_transmitter(t_array)
     >>> t_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
     >>> import numpy
-    >>> print "%.2f" % numpy.dot(m.state[0], m.state[0])
+    >>> print "%.2f" % numpy.dot(m.transmit_matrix[0], m.transmit_matrix[0])
     2.00
-    >>> print "%.2f" % numpy.dot(m.state[1], m.state[1])
+    >>> print "%.2f" % numpy.dot(m.transmit_matrix[1], m.transmit_matrix[1])
     1.24
+    >>> r_array = Receiver_Array(EXTENTS, STEP)
+    >>> r_array.add_element(0.0, 0.0, w)
+    >>> r_array.add_element(11.0e-6, 11.0e-6, w)
+    >>> m.connect_receiver(r_array)
+    >>> r_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
+    >>> print "%.2f" % numpy.dot(m.receive_matrix.T[0], m.receive_matrix.T[0])
+    2.00
+    >>> print "%.2f" % numpy.dot(m.receive_matrix.T[1], m.receive_matrix.T[1])
+    1.22
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
@@ -365,10 +374,11 @@ class LargeCoreMMF(Fiber):
         self.modes = GHModes(w, XX, YY)
 
     def connect_transmitter(self, t_array):
-        self.state = t_array.overlap_matrix(self)
+        self.transmit_matrix = t_array.overlap_matrix(self)
         self.transmitter_connected = True
 
-    def connect_receiver(self):
+    def connect_receiver(self, r_array):
+        self.receive_matrix = r_array.overlap_matrix(self)
         self.receiver_connected = True
 
 if __name__ == "__main__":

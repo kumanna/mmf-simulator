@@ -134,6 +134,26 @@ class Transmitter_Array(TR_Array):
     def overlap_matrix(self, fiber_instance):
         return super(Transmitter_Array, self).overlap_matrix(fiber_instance)
 
+class Receiver_Array(TR_Array):
+    """
+    A receiver array element. Most of the functionality is derived
+    from the ``TR_Array'' class.
+    """
+
+    def __init__(self, extents, step):
+        super(Receiver_Array, self).__init__()
+        x = numpy.arange(-extents, extents, step)
+        y = numpy.arange(-extents, extents, step)
+        [self.XX, self.YY] = numpy.meshgrid(x, y)
+
+    def add_element(self, x, y, diameter = 5.0e-6):
+        modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
+        super(Receiver_Array, self).add_element(x, y, diameter, modes)
+        self.plot_system()
+
+    def overlap_matrix(self, fiber_instance):
+        return super(Receiver_Array, self).overlap_matrix(fiber_instance).conj().T
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
