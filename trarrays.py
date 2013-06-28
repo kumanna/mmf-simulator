@@ -45,12 +45,24 @@ class TR_Array(object):
         self.modes = None
 
     @abc.abstractmethod
-    def overlap_matrix(self, mode_pattern):
+    def overlap_matrix(self, fiber_instance):
         """
         This method returns the overlap matrix for calculating the
         MIMO channel matrix of a complete system.
         """
-        raise NotImplemented
+        element_arrays = []
+        for device in self._device_list:
+            Er1 = device.modes.get_mode_pattern(0, 0)
+            fiber_modes = fiber_instance.get_admissible_modes()
+            M = len(fiber_modes)
+            mode_vector = numpy.zeros(2 * M)
+            for i in range(M):
+                current_mode = fiber_modes[i]
+                Er2 = fiber_instance.modes.get_mode_pattern(current_mode[0], current_mode[1])
+                mode_vector[i] = mode_vector[M + i] = utils.overlap(Er1, Er2)
+            element_arrays.append(mode_vector)
+        element_arrays = numpy.array(element_arrays)
+        return element_arrays
 
     def add_element(self, x, y, diameter = 5.0e-6, modes = None):
         """
@@ -120,19 +132,7 @@ class Transmitter_Array(TR_Array):
         self.plot_system()
 
     def overlap_matrix(self, fiber_instance):
-        element_arrays = []
-        for device in self._device_list:
-            Er1 = device.modes.get_mode_pattern(0, 0)
-            fiber_modes = fiber_instance.get_admissible_modes()
-            M = len(fiber_modes)
-            mode_vector = numpy.zeros(2 * M)
-            for i in range(M):
-                current_mode = fiber_modes[i]
-                Er2 = fiber_instance.modes.get_mode_pattern(current_mode[0], current_mode[1])
-                mode_vector[i] = mode_vector[M + i] = utils.overlap(Er1, Er2)
-            element_arrays.append(mode_vector)
-        element_arrays = numpy.array(element_arrays)
-        return element_arrays
+        return super(Transmitter_Array, self).overlap_matrix(fiber_instance)
 
 if __name__ == "__main__":
     import doctest
