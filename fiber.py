@@ -216,7 +216,7 @@ class LargeCoreMMF(Fiber):
     >>> t_array.add_element(0.0, 0.0, w)
     >>> t_array.add_element(10.0e-6, 10.0e-6, w)
     >>> m.connect_transmitter(t_array)
-    >>> t_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
+    >>> # t_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
     >>> import numpy
     >>> print "%.2f" % numpy.dot(m.transmit_matrix[0], m.transmit_matrix[0])
     2.00
@@ -226,7 +226,7 @@ class LargeCoreMMF(Fiber):
     >>> r_array.add_element(0.0, 0.0, w)
     >>> r_array.add_element(11.0e-6, 11.0e-6, w)
     >>> m.connect_receiver(r_array)
-    >>> r_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
+    >>> # r_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
     >>> print "%.2f" % numpy.dot(m.receive_matrix.T[0], m.receive_matrix.T[0])
     2.00
     >>> print "%.2f" % numpy.dot(m.receive_matrix.T[1], m.receive_matrix.T[1])
