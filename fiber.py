@@ -328,6 +328,14 @@ class LargeCoreMMF(Fiber):
         uiprop_matrix[M:,M:] = expm(My)
         return uiprop_matrix
 
+    def generate_rotation_matrix(self, theta, M):
+        """
+        Generates a matrix that represents the rotation across a section of the fiber.
+        """
+        sin, cos = numpy.sin, numpy.cos
+        return numpy.kron(numpy.array([[cos(theta), sin(theta)], [-sin(theta), cos(theta)]]), \
+                          numpy.eye(M))
+
     def calculate_matrix(self, L):
         """
         Evaluates the total mode transformation matrix for a particular wavelength.
