@@ -322,17 +322,42 @@ class LargeCoreMMF(Fiber):
 
     def uiprop(self, gamma_x, gamma_y, C, delta_per_section, M):
         uiprop_matrix = (1 + 0.0j) * numpy.zeros((2 * M, 2 * M))
-        Mx = 1.0j * (-gamma_x + C * delta_per_section)
+        Mx = (-gamma_x + 1.0j * C * delta_per_section)
         uiprop_matrix[:M,:M] = expm(Mx)
-        My = 1.0j * (-gamma_y + C * delta_per_section)
+        My = (-gamma_y + 1.0j * C * delta_per_section)
         uiprop_matrix[M:,M:] = expm(My)
         return uiprop_matrix
 
-    def generate_rotation_matrix(self, theta, M):
+    def _sum_psi_matrix(self, p, q, m, n, k, l, theta):
+        cos, sin = numpy.cos, numpy.sin
+        part_sum = 0;
+        s = float(k + q - l + m) / 2.0;
+        t = float(p - k + l + n) / 2.0;
+        if (s >= k) and (s >= q - l) and (s >= m) and (t >= p - k) and (t >= l) and (t >= n) and (int(2*s) % 2) == 0 and (int(2*t) % 2) == 0:
+            part_sum = (factorial(p) * factorial(q) * factorial(m) * factorial(n))**0.5 * (-1)**(p - k) * cos(theta)**k * sin(theta)**(p - k) * cos(theta)**l * sin(theta)**(q - l) / (factorial(s - k) * factorial(s - q + l) * factorial(s - m) * factorial(t - p + k) * factorial(t - l) * factorial(t - n))
+        return part_sum
+
+    def generate_projection_matrix(self, theta):
+        admissible_modes = self.admissible_modes
+        M = len(admissible_modes)
+        psi_matrix = numpy.zeros((M, M))
+        for i in range(M):
+            m, n = admissible_modes[i]
+            for j in range(M):
+                p, q = admissible_modes[j]
+                for k in range(p + 1):
+                    for l in range(q + 1):
+                        part_sum = self._sum_psi_matrix(p, q, m, n, k, l, theta)
+                        psi_matrix[i][j] = psi_matrix[i][j] + part_sum
+        psi_matrix = numpy.kron(numpy.eye(2), psi_matrix)
+        return psi_matrix
+
+    def generate_rotation_matrix(self, theta):
         """
         Generates a matrix that represents the rotation across a section of the fiber.
         """
         sin, cos = numpy.sin, numpy.cos
+        M = len(self.admissible_modes)
         return numpy.kron(numpy.array([[cos(theta), sin(theta)], [-sin(theta), cos(theta)]]), \
                           numpy.eye(M))
 
@@ -342,7 +367,7 @@ class LargeCoreMMF(Fiber):
 
         Example:
         >>> m = LargeCoreMMF(length=1.0)
-        >>> m.calculate_matrix(1.55e-6)
+        >>> U = m.calculate_matrix(1.55e-6)
         """
         n_sections = int(self.length / self.step_length)
         M = len(self.admissible_modes)
@@ -356,6 +381,9 @@ class LargeCoreMMF(Fiber):
             Gamma_y = 1j * numpy.diag(betas[M:])
             C = self.coupling_coefficients(L, kappa, self.MAX)
             uiprop = self.uiprop(Gamma_x, Gamma_y, C, float(L) / float(n_sections), M)
+            Ri = self.generate_rotation_matrix(theta)
+            Mi = self.generate_projection_matrix(theta)
+            return numpy.dot(numpy.dot(Mi,  Ri), uiprop)
 
     def populate_modes(self):
         """
