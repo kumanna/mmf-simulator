@@ -129,7 +129,7 @@ class Transmitter_Array(TR_Array):
     def add_element(self, x, y, diameter = 5.0e-6):
         modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
         super(Transmitter_Array, self).add_element(x, y, diameter, modes)
-        self.plot_system()
+        #self.plot_system()
 
     def overlap_matrix(self, fiber_instance):
         return super(Transmitter_Array, self).overlap_matrix(fiber_instance)
@@ -149,7 +149,7 @@ class Receiver_Array(TR_Array):
     def add_element(self, x, y, diameter = 5.0e-6):
         modes = fiber.GHModes(diameter, self.XX, self.YY, offset_x = x, offset_y = y)
         super(Receiver_Array, self).add_element(x, y, diameter, modes)
-        self.plot_system()
+        #self.plot_system()
 
     def overlap_matrix(self, fiber_instance):
         return super(Receiver_Array, self).overlap_matrix(fiber_instance).conj().T
