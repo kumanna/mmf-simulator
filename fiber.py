@@ -221,7 +221,7 @@ class LargeCoreMMF(Fiber):
     >>> print "%.2f" % numpy.dot(m.transmit_matrix[0], m.transmit_matrix[0])
     2.00
     >>> print "%.2f" % numpy.dot(m.transmit_matrix[1], m.transmit_matrix[1])
-    1.24
+    2.00
     >>> r_array = Receiver_Array(EXTENTS, STEP)
     >>> r_array.add_element(0.0, 0.0, w)
     >>> r_array.add_element(11.0e-6, 11.0e-6, w)
@@ -230,7 +230,7 @@ class LargeCoreMMF(Fiber):
     >>> print "%.2f" % numpy.dot(m.receive_matrix.T[0], m.receive_matrix.T[0])
     2.00
     >>> print "%.2f" % numpy.dot(m.receive_matrix.T[1], m.receive_matrix.T[1])
-    1.22
+    1.99
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
@@ -401,7 +401,13 @@ class LargeCoreMMF(Fiber):
         w = self.w
         MAX = int(numpy.floor((a / w) * (a / w)))
         self.MAX = MAX
-        self.admissible_modes = numpy.concatenate([[(i, j) for i in range(j + 1)] for j in range(MAX + 1)])
+        #self.admissible_modes = numpy.concatenate([[(i, j) for i in range(j + 1)] for j in range(MAX + 1)])
+        self.admissible_modes = []
+        for p in range(MAX + 1):
+            for q in range(MAX + 1):
+                if (p + q) <= MAX:
+                    self.admissible_modes.append([p, q])
+        self.admissible_modes = numpy.array(self.admissible_modes)
         admissible_modes = self.admissible_modes
         M = len(admissible_modes)
         self.betas = [None] * (2*M)
