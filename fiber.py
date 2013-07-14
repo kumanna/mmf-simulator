@@ -231,6 +231,7 @@ class LargeCoreMMF(Fiber):
     2.00
     >>> print "%.2f" % numpy.dot(m.receive_matrix.T[1], m.receive_matrix.T[1])
     1.99
+    >>> U = m.calculate_matrix(1.55e-6)
     """
 
     fiber_attributes = ["NA", "wavelength", "a", "n0", "Csk0",
@@ -394,9 +395,6 @@ class LargeCoreMMF(Fiber):
         """
         Evaluates the total mode transformation matrix for a particular wavelength.
 
-        Example:
-        >>> m = LargeCoreMMF(length=1.0)
-        >>> U = m.calculate_matrix(1.55e-6)
         """
         n_sections = int(self.length / self.step_length)
         M = len(self.admissible_modes)
@@ -418,7 +416,7 @@ class LargeCoreMMF(Fiber):
             Mi = self.generate_projection_matrix(theta)
             U = numpy.dot(uiprop, U)
             U = numpy.dot(numpy.dot(Mi, Ri), U)
-        return U
+        return numpy.dot(numpy.dot(self.receive_matrix.T, U), self.transmit_matrix.T)
 
     def populate_modes(self):
         """
