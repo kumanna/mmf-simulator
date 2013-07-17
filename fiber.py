@@ -359,7 +359,7 @@ class LargeCoreMMF(Fiber):
                         s = s2 / 2
                         t = t2 / 2
                         kl_index = alist.index([k, l])
-                        if s % 2 == 0 and t % 2 == 0 and (s >= k) and (s >= q - l) and (s >= m) and (t >= p - k) and (t >= l) and (t >= n):
+                        if s2 % 2 == 0 and t2 % 2 == 0 and (s >= k) and (s >= q - l) and (s >= m) and (t >= p - k) and (t >= l) and (t >= n):
                             p_matrix[i, j, kl_index] = outer_factor * pow(-1, p - k) / (factorial(s - k) * factorial(s - q + l) * factorial(s - m) * factorial(t - p + k) * factorial(t - l) * factorial(t - n))
                             powsin_matrix[i, j, kl_index] = p - k + q - l
                             powcos_matrix[i, j, kl_index] = k + l
@@ -416,6 +416,13 @@ class LargeCoreMMF(Fiber):
             Mi = self.generate_projection_matrix(theta)
             U = numpy.dot(uiprop, U)
             U = numpy.dot(numpy.dot(Mi, Ri), U)
+        return U
+
+    def calculate_mimo_matrix(self, L):
+        """
+        Calculates the complete M by N MIMO matrix
+        """
+        U = self.calculate_matrix(L)
         return numpy.dot(numpy.dot(self.receive_matrix.T, U), self.transmit_matrix.T)
 
     def populate_modes(self):
