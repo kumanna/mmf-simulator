@@ -48,6 +48,22 @@ def overlap(Er1, Er2):
 
     return numpy.sum(numpy.multiply(Er1, Er2.conj())) / E1_mag / E2_mag
 
+def bandwidth_to_wavelength_range(maxf, L, steps = 10):
+    """
+    This method converts a given bandwidth range to a wavelength range
+    for use with the simulator.
+    >>> bandwidth_to_wavelength_range(1e10, 1.55e-6)
+    array([  5.16693362e-15,   5.16687430e-15,   5.16681497e-15,
+             5.16675565e-15,   5.16669633e-15,   5.16663701e-15,
+             5.16657769e-15,   5.16651837e-15,   5.16645905e-15,
+             5.16639974e-15])
+    """
+    fc = 3e8 / L
+    minf_net = fc - maxf
+    maxf_net = fc + maxf
+    return 1.0 / numpy.linspace(minf_net, maxf_net, steps)
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
