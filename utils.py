@@ -53,15 +53,15 @@ def bandwidth_to_wavelength_range(maxf, L, steps = 10):
     This method converts a given bandwidth range to a wavelength range
     for use with the simulator.
     >>> bandwidth_to_wavelength_range(1e10, 1.55e-6)
-    array([  5.16693362e-15,   5.16687430e-15,   5.16681497e-15,
-             5.16675565e-15,   5.16669633e-15,   5.16663701e-15,
-             5.16657769e-15,   5.16651837e-15,   5.16645905e-15,
-             5.16639974e-15])
+    array([  1.55008009e-06,   1.55006229e-06,   1.55004449e-06,
+             1.55002669e-06,   1.55000890e-06,   1.54999110e-06,
+             1.54997331e-06,   1.54995551e-06,   1.54993772e-06,
+             1.54991992e-06])
     """
     fc = 3e8 / L
     minf_net = fc - maxf
     maxf_net = fc + maxf
-    return 1.0 / numpy.linspace(minf_net, maxf_net, steps)
+    return 3.0e8 / numpy.linspace(minf_net, maxf_net, steps)
 
 
 if __name__ == "__main__":
