@@ -5,7 +5,7 @@ This class defines and implements the transmit and receive arrays.
 >>> EXTENTS = 30e-6 # Larger than the diameter
 >>> STEP = 0.5e-6 # fixed for now
 >>> t_array = Transmitter_Array(EXTENTS, STEP)
->>> t_array.add_element(0.0, 0.0, 50.0e-6)
+>>> t_array.add_element(0.0, 0.0, 5.0e-6)
 >>> t_array.add_element(10.0e-6, 10.0e-6, 5.0e-6)
 >>> for i in t_array.get_elements():
 ...     print "Array element at (" + str(i.x) + ", " + str(i.y) + ") with diameter " + str(i.diameter) + "."
@@ -17,7 +17,7 @@ import fiber
 import numpy
 import utils
 
-class LDArrayElement:
+class LDArrayElement(object):
     """
     Class that represents each element of the laser/detector array
     """
