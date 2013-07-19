@@ -38,12 +38,13 @@ class ModeFilteredElement(LDArrayElement):
     Class to hold special elements that contain mode filtered
     transmt/receive lasers/detectors.
     """
-    def __init__(self, mode_pattern):
+    def __init__(self, w, XX, YY, p = 0, q = 0, offset_x = 0.0, offset_y = 0.0, theta = 0.0):
         """
         Adds a laser or detector with a specific mode pattern.
         """
-        super(ModeFilteredElement, self).__init__()
-        self.mode_pattern = mode_pattern
+        super(ModeFilteredElement, self).__init__(offset_x, offset_y, w)
+        modes = fiber.GHModes(w, XX, YY, offset_x = offset_x, offset_y = offset_y, theta = theta)
+        self.mode_pattern = modes.get_mode_pattern(p, q)
 
     def get_mode_pattern(self, p = 0, q = 0):
         """
