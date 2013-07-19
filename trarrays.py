@@ -33,6 +33,24 @@ class LDArrayElement(object):
     def get_mode_pattern(self, p = 0, q = 0):
         return self.modes.get_mode_pattern(p, q)
 
+class ModeFilteredElement(LDArrayElement):
+    """
+    Class to hold special elements that contain mode filtered
+    transmt/receive lasers/detectors.
+    """
+    def __init__(self, mode_pattern):
+        """
+        Adds a laser or detector with a specific mode pattern.
+        """
+        super(ModeFilteredElement, self).__init__()
+        self.mode_pattern = mode_pattern
+
+    def get_mode_pattern(self, p = 0, q = 0):
+        """
+        Returns the specific mode pattern
+        """
+        return self.mode_pattern
+
 class TR_Array(object):
     """
     Base class that defines the characteristic of laser and detector arrays
@@ -70,6 +88,12 @@ class TR_Array(object):
         specified in microns.
         """
         self._device_list.append(LDArrayElement(x, y, diameter, modes))
+
+    def add_filtered_element(self, element):
+        """
+        Adds a mode-filtered element
+        """
+        self._device_list.append(element)
 
     def get_elements(self):
         return self._device_list
