@@ -71,7 +71,7 @@ class TR_Array(object):
         """
         element_arrays = []
         for device in self._device_list:
-            Er1 = device.modes.get_mode_pattern(0, 0)
+            Er1 = device.get_mode_pattern(0, 0)
             fiber_modes = fiber_instance.get_admissible_modes()
             M = len(fiber_modes)
             mode_vector = numpy.zeros(2 * M)

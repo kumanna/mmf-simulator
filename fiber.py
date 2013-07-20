@@ -393,8 +393,8 @@ class LargeCoreMMF(Fiber):
 
     def calculate_matrix(self, L):
         """
-        Evaluates the total mode transformation matrix for a particular wavelength.
-
+        Evaluates the total mode transformation matrix for a
+        particular wavelength.
         """
         n_sections = int(self.length / self.step_length)
         M = len(self.admissible_modes)
