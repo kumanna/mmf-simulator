@@ -133,6 +133,8 @@ class GHModes(ModeFamily):
         pattern = pattern / numpy.max(pattern)
         pyplot.imshow(numpy.abs(pattern.T), interpolation = 'bilinear', cmap = matplotlib.cm.spectral, origin='lower')
         pyplot.grid(True)
+        pyplot.xticks([])
+        pyplot.yticks([])
         pyplot.show()
 
 class Fiber(object):
