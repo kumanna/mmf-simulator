@@ -393,7 +393,7 @@ class LargeCoreMMF(Fiber):
         return numpy.kron(numpy.array([[cos(theta), sin(theta)], [-sin(theta), cos(theta)]]), \
                           numpy.eye(M))
 
-    def calculate_matrix(self, L):
+    def calculate_matrix(self, L, kappa_vals = None, theta_vals = None):
         """
         Evaluates the total mode transformation matrix for a
         particular wavelength.
@@ -401,13 +401,17 @@ class LargeCoreMMF(Fiber):
         n_sections = int(self.length / self.step_length)
         M = len(self.admissible_modes)
         U = numpy.eye(2*M, 2*M)
+        if kappa_vals == None:
+            kappa_vals = numpy.abs(self.sigma_kappa * numpy.random.randn(n_sections))
+        if theta_vals == None:
+            theta_vals = numpy.abs(self.sigma_theta * numpy.random.randn(n_sections))
 
         self.initialize_projection_parameters()
 
         for section in range(n_sections):
             # Generate curvature and angle
-            kappa = numpy.abs(self.sigma_kappa * numpy.random.randn())
-            theta = numpy.abs(self.sigma_theta * numpy.random.randn())
+            kappa = kappa_vals[section]
+            theta = theta_vals[section]
 
             betas = numpy.array([b(L, kappa) for b in self.betas])
             Gamma_x = 1j * numpy.diag(betas[:M])
