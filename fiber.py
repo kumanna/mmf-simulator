@@ -341,9 +341,9 @@ class LargeCoreMMF(Fiber):
 
     def uiprop(self, gamma_x, gamma_y, C, delta_per_section, M):
         uiprop_matrix = (1 + 0.0j) * numpy.zeros((2 * M, 2 * M))
-        Mx = (-gamma_x + 1.0j * C * delta_per_section)
+        Mx = (-gamma_x + 1.0j * C) * delta_per_section
         uiprop_matrix[:M,:M] = expm(Mx)
-        My = (-gamma_y + 1.0j * C * delta_per_section)
+        My = (-gamma_y + 1.0j * C) * delta_per_section
         uiprop_matrix[M:,M:] = expm(My)
         return uiprop_matrix
 
@@ -409,11 +409,13 @@ class LargeCoreMMF(Fiber):
         return numpy.kron(numpy.array([[cos(theta), sin(theta)], [-sin(theta), cos(theta)]]), \
                           numpy.eye(M))
 
-    def calculate_matrix(self, L, kappa_vals = None, theta_vals = None):
+    def calculate_matrix(self, L=None, kappa_vals = None, theta_vals = None):
         """
         Evaluates the total mode transformation matrix for a
         particular wavelength.
         """
+        if L is None:
+            L = self.wavelength
         n_sections = int(self.length / self.step_length)
         M = len(self.admissible_modes)
         U = numpy.eye(2*M, 2*M)
@@ -433,7 +435,7 @@ class LargeCoreMMF(Fiber):
             Gamma_x = 1j * numpy.diag(betas[:M])
             Gamma_y = 1j * numpy.diag(betas[M:])
             C = self.coupling_coefficients(L, kappa, self.MAX)
-            uiprop = self.uiprop(Gamma_x, Gamma_y, C, float(L) / float(n_sections), M)
+            uiprop = self.uiprop(Gamma_x, Gamma_y, C, self.step_length, M)
             Ri = self.generate_rotation_matrix(theta)
             Mi = self.generate_projection_matrix(theta)
             U = numpy.dot(uiprop, U)
