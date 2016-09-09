@@ -93,11 +93,11 @@ class GHModes(ModeFamily):
     >>> # gh_modes.plot_mode_pattern(2, 2)
     >>> mode_pattern_1 = gh_modes.get_mode_pattern(0, 0)
     >>> mode_pattern_2 = gh_modes.get_mode_pattern(1, 1)
-    >>> print "%.2f" % utils.overlap(mode_pattern_1, mode_pattern_1)
+    >>> print "%.2f" % abs(utils.overlap(mode_pattern_1, mode_pattern_1))
     1.00
-    >>> print "%.2f" % utils.overlap(mode_pattern_2, mode_pattern_2)
+    >>> print "%.2f" % abs(utils.overlap(mode_pattern_2, mode_pattern_2))
     1.00
-    >>> print "%.2f" % utils.overlap(mode_pattern_1, mode_pattern_2)
+    >>> print "%.2f" % abs(utils.overlap(mode_pattern_1, mode_pattern_2))
     0.00
     """
     def get_mode_pattern(self, p, q):
