@@ -24,7 +24,7 @@ This class defines and implements the transmit and receive arrays.
 >>> t_array.add_element(0.0, 0.0, 5.0e-6)
 >>> t_array.add_element(10.0e-6, 10.0e-6, 5.0e-6)
 >>> for i in t_array.get_elements():
-...     print "Array element at (" + str(i.x) + ", " + str(i.y) + ") with diameter " + str(i.diameter) + "."
+...     print("Array element at (" + str(i.x) + ", " + str(i.y) + ") with diameter " + str(i.diameter) + ".")
 Array element at (0.0, 0.0) with diameter 5e-06.
 Array element at (1e-05, 1e-05) with diameter 5e-06.
 """
@@ -128,7 +128,7 @@ class TR_Array(object):
         try:
             import matplotlib
         except ImportError:
-            print "Can't plot, because matplotlib seems missing"
+            print("Can't plot, because matplotlib seems missing")
             return
         import matplotlib.patches as patches
         import matplotlib.pyplot as pyplot

@@ -93,11 +93,11 @@ class GHModes(ModeFamily):
     >>> # gh_modes.plot_mode_pattern(2, 2)
     >>> mode_pattern_1 = gh_modes.get_mode_pattern(0, 0)
     >>> mode_pattern_2 = gh_modes.get_mode_pattern(1, 1)
-    >>> print "%.2f" % utils.overlap(mode_pattern_1, mode_pattern_1)
+    >>> print("%.2f" % abs(utils.overlap(mode_pattern_1, mode_pattern_1)))
     1.00
-    >>> print "%.2f" % utils.overlap(mode_pattern_2, mode_pattern_2)
+    >>> print("%.2f" % abs(utils.overlap(mode_pattern_2, mode_pattern_2)))
     1.00
-    >>> print "%.2f" % utils.overlap(mode_pattern_1, mode_pattern_2)
+    >>> print("%.2f" % abs(utils.overlap(mode_pattern_1, mode_pattern_2)))
     0.00
     """
     def get_mode_pattern(self, p, q):
@@ -140,7 +140,7 @@ class GHModes(ModeFamily):
         try:
             import matplotlib
         except ImportError:
-            print "Can't plot, because matplotlib seems missing"
+            print("Can't plot, because matplotlib seems missing")
             return
         import matplotlib.patches as patches
         import matplotlib.pyplot as pyplot
@@ -236,18 +236,18 @@ class LargeCoreMMF(Fiber):
     >>> m.connect_transmitter(t_array)
     >>> # t_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
     >>> import numpy
-    >>> print "%.2f" % numpy.dot(m.transmit_matrix[0], m.transmit_matrix[0])
+    >>> print("%.2f" % numpy.dot(m.transmit_matrix[0], m.transmit_matrix[0]))
     2.00
-    >>> print "%.2f" % numpy.dot(m.transmit_matrix[1], m.transmit_matrix[1])
+    >>> print("%.2f" % numpy.dot(m.transmit_matrix[1], m.transmit_matrix[1]))
     2.00
     >>> r_array = Receiver_Array(EXTENTS, STEP)
     >>> r_array.add_element(0.0, 0.0, w)
     >>> r_array.add_element(11.0e-6, 11.0e-6, w)
     >>> m.connect_receiver(r_array)
     >>> # r_array.get_elements()[1].modes.plot_mode_pattern(0, 0)
-    >>> print "%.2f" % numpy.dot(m.receive_matrix.T[0], m.receive_matrix.T[0])
+    >>> print("%.2f" % numpy.dot(m.receive_matrix.T[0], m.receive_matrix.T[0]))
     2.00
-    >>> print "%.2f" % numpy.dot(m.receive_matrix.T[1], m.receive_matrix.T[1])
+    >>> print("%.2f" % numpy.dot(m.receive_matrix.T[1], m.receive_matrix.T[1]))
     1.99
     >>> U = m.calculate_matrix(1.55e-6)
     """
