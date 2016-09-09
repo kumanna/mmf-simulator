@@ -1,9 +1,0 @@
-language: python
-python:
-  - "2.7"
-addons:
-  apt:
-    packages:
-      - python-scipy
-      - python-numpy
-script: ./run_tests.sh
