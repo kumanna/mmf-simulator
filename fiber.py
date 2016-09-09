@@ -490,4 +490,4 @@ class LargeCoreMMF(Fiber):
 if __name__ == "__main__":
     import doctest
     import utils
-    doctest.testmod()
+    doctest.testmod(raise_on_error=True)
