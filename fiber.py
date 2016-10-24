@@ -274,7 +274,6 @@ class LargeCoreMMF(Fiber):
         self.sigma_kappa = sqrt(0.36)
 
         self.k0 = 2 * numpy.pi / wavelength
-        self.w = sqrt(sqrt(2) * self.a / (self.k0 * self.n0 * sqrt(self.DELTA)));
 
         self.EXTENTS = 30e-6
         self.STEP = 0.5e-6
@@ -297,6 +296,7 @@ class LargeCoreMMF(Fiber):
             exec("f.__doc__ = \"Returns %s for this fiber\"" % (i))
             exec("self.get_%s = types.MethodType(f, self)" % i)
 
+        self.w = sqrt(sqrt(2) * self.a / (self.k0 * self.n0 * sqrt(self.DELTA)));
         self.populate_modes()
 
     def calculate_beta(self, p, q):
