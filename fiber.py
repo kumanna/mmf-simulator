@@ -434,7 +434,7 @@ class LargeCoreMMF(Fiber):
             betas = numpy.array([b(L, kappa) for b in self.betas])
             Gamma_x = 1j * numpy.diag(betas[:M])
             Gamma_y = 1j * numpy.diag(betas[M:])
-            C = self.coupling_coefficients(L=L, kappa=kappa, self.MAX)
+            C = self.coupling_coefficients(L=L, kappa=kappa, MAX=self.MAX)
             uiprop = self.uiprop(Gamma_x, Gamma_y, C, self.step_length, M)
             Ri = self.generate_rotation_matrix(theta)
             Mi = self.generate_projection_matrix(theta)
