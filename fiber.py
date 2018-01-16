@@ -62,7 +62,7 @@ class ModeFamily(object):
         Return the mode pattern for the mesh grid that the class was
         initialized with.
         """
-        raise NotImplemented        
+        raise NotImplemented
 
 class GHModes(ModeFamily):
     """
@@ -164,7 +164,7 @@ class Fiber(object):
     def __init__(self, length = 1000.0, step_length = 0.1, wavelength = 1.55e-6):
         """
         Initialize the fiber with length and step size.
-        
+
         """
         self.length = length
         self.step_length = step_length
