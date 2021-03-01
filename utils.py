@@ -60,7 +60,7 @@ def overlap(Er1, Er2):
 
     # First find the normalization for the matrices
     E1_mag = numpy.linalg.norm(Er1, ord='fro')
-    E2_mag = numpy.linalg.norm(Er1, ord='fro')
+    E2_mag = numpy.linalg.norm(Er2, ord='fro')
 
     return numpy.sum(numpy.multiply(Er1, Er2.conj())) / E1_mag / E2_mag
 
